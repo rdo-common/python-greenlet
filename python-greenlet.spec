@@ -4,7 +4,7 @@
 
 Name:           python-greenlet
 Version:        0.3.1
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        Lightweight in-process concurrent programming
 Group:          Development/Libraries
 License:        MIT
@@ -56,7 +56,7 @@ rm -rf %{buildroot}
 # FIXME!!
 # The checks segfault on ppc64. So this arch
 # is essentially not supported until this is fixed
-%ifnarch ppc ppc64
+%ifnarch ppc ppc64 s390 s390x
 %check
 # Run the upstream test suite:
 %{__python} setup.py test
@@ -77,6 +77,9 @@ PYTHONPATH=$(pwd) %{__python} benchmarks/switch.py
 %{_includedir}/python*/greenlet
 
 %changelog
+* Fri Nov 25 2011 Dan Horák <dan[at]danny.cz> - 0.3.1-8
+- disable tests also for s390(x)
+
 * Thu Nov 17 2011 Pádraig Brady <P@draigBrady.com> - 0.3.1-7
 - Fix %%check quoting in the previous comment which when
   left with a single percent sign, pulled in "unset DISPLAY\n"
