@@ -4,7 +4,7 @@
 
 Name:           python-greenlet
 Version:        0.4.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Lightweight in-process concurrent programming
 Group:          Development/Libraries
 License:        MIT
@@ -67,6 +67,9 @@ PYTHONPATH=$(pwd) %{__python} benchmarks/chain.py
 %{_includedir}/python*/greenlet
 
 %changelog
+* Thu Feb 14 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.4.0-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
+
 * Fri Jan 18 2013 Pádraig Brady <P@draigBrady.com> - 0.4.0-1
 - Update to 0.4.0
 
