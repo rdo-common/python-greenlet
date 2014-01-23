@@ -3,7 +3,7 @@
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:           python-greenlet
-Version:        0.4.1
+Version:        0.4.2
 Release:        1%{?dist}
 Summary:        Lightweight in-process concurrent programming
 Group:          Development/Libraries
@@ -67,6 +67,9 @@ PYTHONPATH=$(pwd) %{__python} benchmarks/chain.py
 %{_includedir}/python*/greenlet
 
 %changelog
+* Thu Jan 23 2014 Orion Poplawski <orion@cora.nwra.com> 0.4.2-1
+- Update to 0.4.2
+
 * Mon Aug 05 2013 Kevin Fenzi <kevin@scrye.com> 0.4.1-1
 - Update to 0.4.1
 - Fix FTBFS bug #993134
