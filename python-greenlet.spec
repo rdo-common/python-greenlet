@@ -1,20 +1,20 @@
-# sitelib for noarch packages, sitearch for others (remove the unneeded one)
-%{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
-%{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
+%global         with_python3 1
 
 Name:           python-greenlet
-Version:        0.4.2
-Release:        3%{?dist}
+Version:        0.4.5
+Release:        1%{?dist}
 Summary:        Lightweight in-process concurrent programming
 Group:          Development/Libraries
 License:        MIT
 URL:            http://pypi.python.org/pypi/greenlet
 Source0:        http://pypi.python.org/packages/source/g/greenlet/greenlet-%{version}.zip
-
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-
 BuildRequires:  python2-devel
 BuildRequires:  python-setuptools
+%if 0%{?with_python3}
+BuildRequires:  python-tools
+BuildRequires:  python3-devel
+BuildRequires:  python3-setuptools
+%endif # if with_python3
 
 %description
 The greenlet package is a spin-off of Stackless, a version of CPython
@@ -22,51 +22,109 @@ that supports micro-threads called "tasklets". Tasklets run
 pseudo-concurrently (typically in a single or a few OS-level threads)
 and are synchronized with data exchanges on "channels".
 
-%package devel
+%package        devel
 Summary:        C development headers for python-greenlet
 Group:          Development/Libraries
 Requires:       %{name} = %{version}-%{release}
-
-%description devel
+%description    devel
 This package contains header files required for C modules development.
+
+%if 0%{?with_python3}
+%package -n     python3-greenlet
+Summary:        C development headers for python-greenlet
+Group:          Development/Libraries
+
+%description -n python3-greenlet
+The greenlet package is a spin-off of Stackless, a version of CPython
+that supports micro-threads called "tasklets". Tasklets run
+pseudo-concurrently (typically in a single or a few OS-level threads)
+and are synchronized with data exchanges on "channels".
+
+This is the Python 3 version of greenlet.
+
+%package -n     python3-greenlet-devel
+Summary:        C development headers for python3-greenlet
+Group:          Development/Libraries
+Requires:       python3-greenlet = %{version}-%{release}
+%description -n python3-greenlet-devel
+This package contains header files required for C modules development.
+
+%endif # if with_python3
 
 %prep
 %setup -q -n greenlet-%{version}
+chmod 644 benchmarks/*.py
+%if 0%{?with_python3}
+rm -rf %{py3dir}
+cp -a . %{py3dir}
+%endif # if with_python3
 
 %build
-CFLAGS="$RPM_OPT_FLAGS" %{__python} setup.py build
-chmod 644 benchmarks/*.py
+CFLAGS="%{optflags}" %{__python2} setup.py build
+
+%if 0%{?with_python3}
+pushd %{py3dir}
+CFLAGS="%{optflags}" %{__python3} setup.py build
+popd
+%endif # if with_python3
 
 %install
-rm -rf %{buildroot}
-%{__python} setup.py install -O1 --skip-build --root %{buildroot}
+# Install python 3 first, so that python 2 gets precedence:
+%if 0%{?with_python3}
+pushd %{py3dir}
+%{__python3} setup.py install -O1 --skip-build --root %{buildroot}
+popd
+%endif # if with_python3
+%{__python2} setup.py install -O1 --skip-build --root %{buildroot}
  
-%clean
-rm -rf %{buildroot}
-
-# FIXME!!
-# The checks segfault on ppc. So this arch
-# is essentially not supported until this is fixed
-%ifnarch ppc s390 s390x
+# -02 or higher breaks on some archs. Refs:
+# https://github.com/python-greenlet/greenlet/issues/63 and 66.
+# TODO: find how to turn opt level down or wait for upstream fix
+%ifnarch ppc64 s390 s390x
 %check
-# Run the upstream test suite:
-%{__python} setup.py test
-
-# Run the upstream benchmarking suite to further exercise the code:
-PYTHONPATH=$(pwd) %{__python} benchmarks/chain.py
-%endif
+# Run the upstream test suite and benchmarking suite to further exercise the code
+%{__python2} setup.py test
+PYTHONPATH=$(pwd) %{__python2} benchmarks/chain.py
+%if 0%{?with_python3}
+PYTHONPATH=
+pushd %{py3dir}
+%{__python3} setup.py test || :
+2to3 -w --no-diffs -n  benchmarks/chain.py
+PYTHONPATH=$(pwd) %{__python3} benchmarks/chain.py
+%endif # if with_python3
+%endif # ppc64 s390 s390x
 
 %files
-%defattr(-,root,root,-)
-%doc doc/greenlet.txt README.rst benchmarks AUTHORS NEWS
+%doc AUTHORS NEWS README.rst LICENSE LICENSE.PSF NEWS
+%doc doc/greenlet.txt README.rst benchmarks
 %{python_sitearch}/greenlet.so
 %{python_sitearch}/greenlet*.egg-info
 
 %files devel
-%defattr(-,root,root,-)
-%{_includedir}/python*/greenlet
+%doc AUTHORS NEWS README.rst LICENSE LICENSE.PSF NEWS
+%{_includedir}/python2*/greenlet
+
+%if 0%{?with_python3}
+%files -n python3-greenlet
+%doc AUTHORS NEWS README.rst LICENSE LICENSE.PSF NEWS
+%doc doc/greenlet.txt README.rst benchmarks
+%{python3_sitearch}/greenlet.cpython-*.so
+%{python3_sitearch}/greenlet*.egg-info
+
+%files -n python3-greenlet-devel
+%doc AUTHORS NEWS README.rst LICENSE LICENSE.PSF NEWS
+%{_includedir}/python3*/greenlet
+%endif # if with_python3
 
 %changelog
+* Sun Mar 29 2015 Terje Røsten <terje.rosten@ntnu.no> - 0.4.5-1
+- 0.4.5
+- Add python3 subpackage
+- Ship license files
+- Some spec clean ups
+- Update fixes FTBFS issue (bz#1106779)
+- Add comment about issues on ppc64, s390 & s390x
+
 * Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.4.2-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 
