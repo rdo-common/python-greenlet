@@ -1,8 +1,8 @@
 %global         with_python3 1
 
 Name:           python-greenlet
-Version:        0.4.5
-Release:        2%{?dist}
+Version:        0.4.7
+Release:        1%{?dist}
 Summary:        Lightweight in-process concurrent programming
 Group:          Development/Libraries
 License:        MIT
@@ -117,6 +117,9 @@ PYTHONPATH=$(pwd) %{__python3} benchmarks/chain.py
 %endif # if with_python3
 
 %changelog
+* Fri Jun 26 2015 Kevin Fenzi <kevin@scrye.com> 0.4.7-1
+- Update to 0.4.7. Fixes bug #1235896
+
 * Thu Jun 18 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.4.5-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 
