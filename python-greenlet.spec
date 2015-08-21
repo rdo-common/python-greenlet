@@ -2,12 +2,16 @@
 
 Name:           python-greenlet
 Version:        0.4.7
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Lightweight in-process concurrent programming
 Group:          Development/Libraries
 License:        MIT
 URL:            http://pypi.python.org/pypi/greenlet
 Source0:        http://pypi.python.org/packages/source/g/greenlet/greenlet-%{version}.zip
+#
+# already upstreamed, should be in next release. 
+# https://github.com/python-greenlet/greenlet/pull/89
+Patch0:         python-greenlet-0.4.7-ppc64le.patch
 BuildRequires:  python2-devel
 BuildRequires:  python-setuptools
 %if 0%{?with_python3}
@@ -53,6 +57,7 @@ This package contains header files required for C modules development.
 
 %prep
 %setup -q -n greenlet-%{version}
+%patch0 -p1
 chmod 644 benchmarks/*.py
 %if 0%{?with_python3}
 rm -rf %{py3dir}
@@ -77,10 +82,6 @@ popd
 %endif # if with_python3
 %{__python2} setup.py install -O1 --skip-build --root %{buildroot}
  
-# -02 or higher breaks on some archs. Refs:
-# https://github.com/python-greenlet/greenlet/issues/63 and 66.
-# TODO: find how to turn opt level down or wait for upstream fix
-%ifnarch ppc64 s390 s390x
 %check
 # Run the upstream test suite and benchmarking suite to further exercise the code
 %{__python2} setup.py test
@@ -92,7 +93,6 @@ pushd %{py3dir}
 2to3 -w --no-diffs -n  benchmarks/chain.py
 PYTHONPATH=$(pwd) %{__python3} benchmarks/chain.py
 %endif # if with_python3
-%endif # ppc64 s390 s390x
 
 %files
 %doc AUTHORS NEWS README.rst LICENSE LICENSE.PSF NEWS
@@ -117,6 +117,10 @@ PYTHONPATH=$(pwd) %{__python3} benchmarks/chain.py
 %endif # if with_python3
 
 %changelog
+* Fri Aug 21 2015 Kevin Fenzi <kevin@scrye.com> 0.4.7-2
+- Re-enable tests on secondary arches. Fixes #1252899
+- Applied patch to build on ppc64le. Fixes #1252900
+
 * Fri Jun 26 2015 Kevin Fenzi <kevin@scrye.com> 0.4.7-1
 - Update to 0.4.7. Fixes bug #1235896
 
