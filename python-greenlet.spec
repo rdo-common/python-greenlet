@@ -1,17 +1,15 @@
+%global         modname greenlet
 %global         with_python3 1
 
-Name:           python-greenlet
-Version:        0.4.7
-Release:        2%{?dist}
+Name:           python-%{modname}
+Version:        0.4.9
+Release:        1%{?dist}
 Summary:        Lightweight in-process concurrent programming
 Group:          Development/Libraries
 License:        MIT
-URL:            http://pypi.python.org/pypi/greenlet
-Source0:        http://pypi.python.org/packages/source/g/greenlet/greenlet-%{version}.zip
-#
-# already upstreamed, should be in next release. 
-# https://github.com/python-greenlet/greenlet/pull/89
-Patch0:         python-greenlet-0.4.7-ppc64le.patch
+URL:            http://pypi.python.org/pypi/%{modname}
+Source0:        http://pypi.python.org/packages/source/g/%{modname}/%{modname}-%{version}.zip
+
 BuildRequires:  python2-devel
 BuildRequires:  python-setuptools
 %if 0%{?with_python3}
@@ -26,19 +24,35 @@ that supports micro-threads called "tasklets". Tasklets run
 pseudo-concurrently (typically in a single or a few OS-level threads)
 and are synchronized with data exchanges on "channels".
 
-%package        devel
-Summary:        C development headers for python-greenlet
+%package -n     python2-%{modname}
+Summary:        %{summary}
+%{?python_provide:%python_provide python2-%{modname}}
 Group:          Development/Libraries
-Requires:       %{name} = %{version}-%{release}
-%description    devel
+
+%description -n python2-%{modname}
+The greenlet package is a spin-off of Stackless, a version of CPython
+that supports micro-threads called "tasklets". Tasklets run
+pseudo-concurrently (typically in a single or a few OS-level threads)
+and are synchronized with data exchanges on "channels".
+
+This is the Python 2 version of greenlet.
+
+%package -n     python2-%{modname}-devel
+Summary:        C development headers for python2-greenlet
+%{?python_provide:%python_provide python2-%{modname}-devel}
+Group:          Development/Libraries
+Requires:       python2-%{modname} = %{version}-%{release}
+
+%description -n python2-%{modname}-devel
 This package contains header files required for C modules development.
 
 %if 0%{?with_python3}
-%package -n     python3-greenlet
-Summary:        C development headers for python-greenlet
+%package -n     python3-%{modname}
+Summary:        %{summary}
+%{?python_provide:%python_provide python3-%{modname}}
 Group:          Development/Libraries
 
-%description -n python3-greenlet
+%description -n python3-%{modname}
 The greenlet package is a spin-off of Stackless, a version of CPython
 that supports micro-threads called "tasklets". Tasklets run
 pseudo-concurrently (typically in a single or a few OS-level threads)
@@ -48,16 +62,17 @@ This is the Python 3 version of greenlet.
 
 %package -n     python3-greenlet-devel
 Summary:        C development headers for python3-greenlet
+%{?python_provide:%python_provide python3-%{modname}-devel}
 Group:          Development/Libraries
-Requires:       python3-greenlet = %{version}-%{release}
-%description -n python3-greenlet-devel
+Requires:       python3-%{modname} = %{version}-%{release}
+
+%description -n python3-%{modname}-devel
 This package contains header files required for C modules development.
 
 %endif # if with_python3
 
 %prep
 %setup -q -n greenlet-%{version}
-%patch0 -p1
 chmod 644 benchmarks/*.py
 %if 0%{?with_python3}
 rm -rf %{py3dir}
@@ -65,11 +80,11 @@ cp -a . %{py3dir}
 %endif # if with_python3
 
 %build
-CFLAGS="%{optflags}" %{__python2} setup.py build
+%py2_build
 
 %if 0%{?with_python3}
 pushd %{py3dir}
-CFLAGS="%{optflags}" %{__python3} setup.py build
+  %py3_build
 popd
 %endif # if with_python3
 
@@ -77,10 +92,10 @@ popd
 # Install python 3 first, so that python 2 gets precedence:
 %if 0%{?with_python3}
 pushd %{py3dir}
-%{__python3} setup.py install -O1 --skip-build --root %{buildroot}
+  %py3_install
 popd
 %endif # if with_python3
-%{__python2} setup.py install -O1 --skip-build --root %{buildroot}
+%py2_install
  
 %check
 # Run the upstream test suite and benchmarking suite to further exercise the code
@@ -94,29 +109,39 @@ pushd %{py3dir}
 PYTHONPATH=$(pwd) %{__python3} benchmarks/chain.py
 %endif # if with_python3
 
-%files
-%doc AUTHORS NEWS README.rst LICENSE LICENSE.PSF NEWS
-%doc doc/greenlet.txt README.rst benchmarks
+%files -n python2-%{modname}
+%license LICENSE LICENSE.PSF
+%doc AUTHORS NEWS README.rst
+%doc doc/greenlet.txt benchmarks
 %{python_sitearch}/greenlet.so
 %{python_sitearch}/greenlet*.egg-info
 
-%files devel
-%doc AUTHORS NEWS README.rst LICENSE LICENSE.PSF NEWS
+%files -n python2-%{modname}-devel
+%license LICENSE LICENSE.PSF
+%doc AUTHORS NEWS README.rst
 %{_includedir}/python2*/greenlet
 
 %if 0%{?with_python3}
 %files -n python3-greenlet
-%doc AUTHORS NEWS README.rst LICENSE LICENSE.PSF NEWS
-%doc doc/greenlet.txt README.rst benchmarks
+%license LICENSE LICENSE.PSF
+%doc AUTHORS NEWS README.rst
+%doc doc/greenlet.txt benchmarks
 %{python3_sitearch}/greenlet.cpython-*.so
 %{python3_sitearch}/greenlet*.egg-info
 
 %files -n python3-greenlet-devel
-%doc AUTHORS NEWS README.rst LICENSE LICENSE.PSF NEWS
+%license LICENSE LICENSE.PSF
+%doc AUTHORS NEWS README.rst
 %{_includedir}/python3*/greenlet
 %endif # if with_python3
 
 %changelog
+* Sun Oct 25 2015 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 0.4.9-1
+- Update to 0.4.9
+- Use %license macro
+- Follow new RPM Packaging guidelines
+- Cleanups in spec
+
 * Fri Aug 21 2015 Kevin Fenzi <kevin@scrye.com> 0.4.7-2
 - Re-enable tests on secondary arches. Fixes #1252899
 - Applied patch to build on ppc64le. Fixes #1252900
