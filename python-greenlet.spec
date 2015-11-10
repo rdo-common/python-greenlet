@@ -3,7 +3,7 @@
 
 Name:           python-%{modname}
 Version:        0.4.9
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Lightweight in-process concurrent programming
 Group:          Development/Libraries
 License:        MIT
@@ -136,6 +136,9 @@ PYTHONPATH=$(pwd) %{__python3} benchmarks/chain.py
 %endif # if with_python3
 
 %changelog
+* Tue Nov 10 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.4.9-2
+- Rebuilt for https://fedoraproject.org/wiki/Changes/python3.5
+
 * Sun Oct 25 2015 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 0.4.9-1
 - Update to 0.4.9
 - Use %license macro
