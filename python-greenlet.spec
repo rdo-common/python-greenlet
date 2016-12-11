@@ -2,13 +2,13 @@
 %global         with_python3 1
 
 Name:           python-%{modname}
-Version:        0.4.9
-Release:        2%{?dist}
+Version:        0.4.11
+Release:        1%{?dist}
 Summary:        Lightweight in-process concurrent programming
 Group:          Development/Libraries
 License:        MIT
 URL:            http://pypi.python.org/pypi/%{modname}
-Source0:        http://pypi.python.org/packages/source/g/%{modname}/%{modname}-%{version}.zip
+Source0:        https://github.com/python-greenlet/greenlet/archive/%{version}.tar.gz
 
 BuildRequires:  python2-devel
 BuildRequires:  python-setuptools
@@ -136,6 +136,9 @@ PYTHONPATH=$(pwd) %{__python3} benchmarks/chain.py
 %endif # if with_python3
 
 %changelog
+* Sun Dec 11 2016 Kevin Fenzi <kevin@scrye.com> - 0.4.11-1
+- Update to 0.4.11. Fixes bug #1403514
+
 * Tue Nov 10 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.4.9-2
 - Rebuilt for https://fedoraproject.org/wiki/Changes/python3.5
 
