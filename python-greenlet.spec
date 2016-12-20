@@ -158,7 +158,7 @@ PYTHONPATH=$(pwd) %{__python3} benchmarks/chain.py
 * Thu Jun 18 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.4.5-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 
-* Sun Mar 29 2015 Terje Røsten <terje.rosten@ntnu.no> - 0.4.5-1
+* Sun Mar 29 2015 Terje RÃ¸sten <terje.rosten@ntnu.no> - 0.4.5-1
 - 0.4.5
 - Add python3 subpackage
 - Ship license files
