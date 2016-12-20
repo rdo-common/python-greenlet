@@ -3,7 +3,7 @@
 
 Name:           python-%{modname}
 Version:        0.4.11
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Lightweight in-process concurrent programming
 Group:          Development/Libraries
 License:        MIT
@@ -136,6 +136,9 @@ PYTHONPATH=$(pwd) %{__python3} benchmarks/chain.py
 %endif # if with_python3
 
 %changelog
+* Tue Dec 20 2016 Miro Hrončok <mhroncok@redhat.com> - 0.4.11-2
+- Rebuild for Python 3.6
+
 * Sun Dec 11 2016 Kevin Fenzi <kevin@scrye.com> - 0.4.11-1
 - Update to 0.4.11. Fixes bug #1403514
 
