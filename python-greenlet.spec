@@ -3,7 +3,7 @@
 
 Name:           python-%{modname}
 Version:        0.4.11
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Lightweight in-process concurrent programming
 Group:          Development/Libraries
 License:        MIT
@@ -136,6 +136,9 @@ PYTHONPATH=$(pwd) %{__python3} benchmarks/chain.py
 %endif # if with_python3
 
 %changelog
+* Sat Feb 11 2017 Fedora Release Engineering <releng@fedoraproject.org> - 0.4.11-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
 * Tue Dec 20 2016 Miro Hrončok <mhroncok@redhat.com> - 0.4.11-2
 - Rebuild for Python 3.6
 
