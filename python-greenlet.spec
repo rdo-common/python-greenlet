@@ -1,141 +1,100 @@
 %global         modname greenlet
-%global         with_python3 1
 
 Name:           python-%{modname}
-Version:        0.4.11
-Release:        5%{?dist}
+Version:        0.4.12
+Release:        1%{?dist}
 Summary:        Lightweight in-process concurrent programming
-Group:          Development/Libraries
 License:        MIT
-URL:            http://pypi.python.org/pypi/%{modname}
-Source0:        https://github.com/python-greenlet/greenlet/archive/%{version}.tar.gz
+URL:            https://github.com/python-greenlet/greenlet
+Source0:        %{url}/archive/%{version}/%{modname}-%{version}.tar.gz
+# https://github.com/python-greenlet/greenlet/pull/120
+Patch0001:      0001-Don-t-clobber-r2-register-on-ppc64el.patch
 
-BuildRequires:  python2-devel
-BuildRequires:  python-setuptools
-%if 0%{?with_python3}
-BuildRequires:  python-tools
-BuildRequires:  python3-devel
-BuildRequires:  python3-setuptools
-%endif # if with_python3
-
-%description
-The greenlet package is a spin-off of Stackless, a version of CPython
-that supports micro-threads called "tasklets". Tasklets run
-pseudo-concurrently (typically in a single or a few OS-level threads)
+%global _description \
+The greenlet package is a spin-off of Stackless, a version of CPython\
+that supports micro-threads called "tasklets". Tasklets run\
+pseudo-concurrently (typically in a single or a few OS-level threads)\
 and are synchronized with data exchanges on "channels".
+
+%description %{_description}
 
 %package -n     python2-%{modname}
 Summary:        %{summary}
 %{?python_provide:%python_provide python2-%{modname}}
-Group:          Development/Libraries
+BuildRequires:  python2-devel
+BuildRequires:  python2-setuptools
 
-%description -n python2-%{modname}
-The greenlet package is a spin-off of Stackless, a version of CPython
-that supports micro-threads called "tasklets". Tasklets run
-pseudo-concurrently (typically in a single or a few OS-level threads)
-and are synchronized with data exchanges on "channels".
+%description -n python2-%{modname} %{_description}
 
-This is the Python 2 version of greenlet.
+Python 2 version.
 
-%package -n     python2-%{modname}-devel
-Summary:        C development headers for python2-greenlet
-%{?python_provide:%python_provide python2-%{modname}-devel}
-Group:          Development/Libraries
-Requires:       python2-%{modname} = %{version}-%{release}
-
-%description -n python2-%{modname}-devel
-This package contains header files required for C modules development.
-
-%if 0%{?with_python3}
 %package -n     python3-%{modname}
 Summary:        %{summary}
 %{?python_provide:%python_provide python3-%{modname}}
-Group:          Development/Libraries
+BuildRequires:  python3-devel
+BuildRequires:  python3-setuptools
 
-%description -n python3-%{modname}
-The greenlet package is a spin-off of Stackless, a version of CPython
-that supports micro-threads called "tasklets". Tasklets run
-pseudo-concurrently (typically in a single or a few OS-level threads)
-and are synchronized with data exchanges on "channels".
+%description -n python3-%{modname} %{_description}
 
-This is the Python 3 version of greenlet.
+Python 3 version.
 
-%package -n     python3-greenlet-devel
-Summary:        C development headers for python3-greenlet
+%package -n     python2-%{modname}-devel
+Summary:        C development headers for python2-%{modname}
+%{?python_provide:%python_provide python2-%{modname}-devel}
+Requires:       python2-%{modname}%{?_isa} = %{?epoch:%{epoch}:}%{version}-%{release}
+
+%description -n python2-%{modname}-devel
+%{summary}.
+
+Python 2 version.
+
+%package -n     python3-%{modname}-devel
+Summary:        C development headers for python3-%{modname}
 %{?python_provide:%python_provide python3-%{modname}-devel}
-Group:          Development/Libraries
-Requires:       python3-%{modname} = %{version}-%{release}
+Requires:       python3-%{modname}%{?_isa} = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %description -n python3-%{modname}-devel
-This package contains header files required for C modules development.
+%{summary}.
 
-%endif # if with_python3
+Python 3 version.
 
 %prep
-%setup -q -n greenlet-%{version}
-chmod 644 benchmarks/*.py
-%if 0%{?with_python3}
-rm -rf %{py3dir}
-cp -a . %{py3dir}
-%endif # if with_python3
+%autosetup -n %{modname}-%{version} -p1
 
 %build
 %py2_build
-
-%if 0%{?with_python3}
-pushd %{py3dir}
-  %py3_build
-popd
-%endif # if with_python3
+%py3_build
 
 %install
-# Install python 3 first, so that python 2 gets precedence:
-%if 0%{?with_python3}
-pushd %{py3dir}
-  %py3_install
-popd
-%endif # if with_python3
 %py2_install
+%py3_install
  
 %check
-# Run the upstream test suite and benchmarking suite to further exercise the code
 %{__python2} setup.py test
-PYTHONPATH=$(pwd) %{__python2} benchmarks/chain.py
-%if 0%{?with_python3}
-PYTHONPATH=
-pushd %{py3dir}
-%{__python3} setup.py test || :
-2to3 -w --no-diffs -n  benchmarks/chain.py
-PYTHONPATH=$(pwd) %{__python3} benchmarks/chain.py
-%endif # if with_python3
+%{__python3} setup.py test
 
 %files -n python2-%{modname}
 %license LICENSE LICENSE.PSF
 %doc AUTHORS NEWS README.rst
-%doc doc/greenlet.txt benchmarks
-%{python_sitearch}/greenlet.so
-%{python_sitearch}/greenlet*.egg-info
+%{python2_sitearch}/%{modname}-*.egg-info
+%{python2_sitearch}/%{modname}.so
 
 %files -n python2-%{modname}-devel
-%license LICENSE LICENSE.PSF
-%doc AUTHORS NEWS README.rst
-%{_includedir}/python2*/greenlet
+%{_includedir}/python%{python2_version}*/%{modname}/
 
-%if 0%{?with_python3}
-%files -n python3-greenlet
+%files -n python3-%{modname}
 %license LICENSE LICENSE.PSF
 %doc AUTHORS NEWS README.rst
-%doc doc/greenlet.txt benchmarks
-%{python3_sitearch}/greenlet.cpython-*.so
-%{python3_sitearch}/greenlet*.egg-info
+%{python3_sitearch}/%{modname}-*.egg-info
+%{python3_sitearch}/%{modname}*.so
 
 %files -n python3-greenlet-devel
-%license LICENSE LICENSE.PSF
-%doc AUTHORS NEWS README.rst
-%{_includedir}/python3*/greenlet
-%endif # if with_python3
+%{_includedir}/python%{python3_version}*/%{modname}/
 
 %changelog
+* Fri Jan 12 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 0.4.12-1
+- Update to 0.4.12
+
 * Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 0.4.11-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
 
