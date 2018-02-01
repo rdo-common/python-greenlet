@@ -1,5 +1,9 @@
 %global         modname greenlet
 
+%if 0%{?fedora}
+%global with_python3 1
+%endif
+
 Name:           python-%{modname}
 Version:        0.4.12
 Release:        1%{?dist}
@@ -28,6 +32,7 @@ BuildRequires:  python2-setuptools
 
 Python 2 version.
 
+%if 0%{?with_python3}
 %package -n     python3-%{modname}
 Summary:        %{summary}
 %{?python_provide:%python_provide python3-%{modname}}
@@ -37,6 +42,7 @@ BuildRequires:  python3-setuptools
 %description -n python3-%{modname} %{_description}
 
 Python 3 version.
+%endif
 
 %package -n     python2-%{modname}-devel
 Summary:        C development headers for python2-%{modname}
@@ -48,6 +54,7 @@ Requires:       python2-%{modname}%{?_isa} = %{?epoch:%{epoch}:}%{version}-%{rel
 
 Python 2 version.
 
+%if 0%{?with_python3}
 %package -n     python3-%{modname}-devel
 Summary:        C development headers for python3-%{modname}
 %{?python_provide:%python_provide python3-%{modname}-devel}
@@ -57,21 +64,28 @@ Requires:       python3-%{modname}%{?_isa} = %{?epoch:%{epoch}:}%{version}-%{rel
 %{summary}.
 
 Python 3 version.
+%endif
 
 %prep
 %autosetup -n %{modname}-%{version} -p1
 
 %build
 %py2_build
+%if 0%{?with_python3}
 %py3_build
+%endif
 
 %install
 %py2_install
+%if 0%{?with_python3}
 %py3_install
+%endif
  
 %check
 %{__python2} setup.py test
+%if 0%{?with_python3}
 %{__python3} setup.py test
+%endif
 
 %files -n python2-%{modname}
 %license LICENSE LICENSE.PSF
@@ -82,6 +96,7 @@ Python 3 version.
 %files -n python2-%{modname}-devel
 %{_includedir}/python%{python2_version}*/%{modname}/
 
+%if 0%{?with_python3}
 %files -n python3-%{modname}
 %license LICENSE LICENSE.PSF
 %doc AUTHORS NEWS README.rst
@@ -90,6 +105,7 @@ Python 3 version.
 
 %files -n python3-greenlet-devel
 %{_includedir}/python%{python3_version}*/%{modname}/
+%endif
 
 %changelog
 * Fri Jan 12 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 0.4.12-1
